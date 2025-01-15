@@ -1,0 +1,51 @@
+[
+    {
+        "model": "apptest.kategori",
+        "pk": 1,
+        "fields": {
+            "nama_kategori": "CI MTH TINTA LAIN (IM)"
+        }
+    },
+    {
+        "model": "apptest.kategori",
+        "pk": 2,
+        "fields": {
+            "nama_kategori": "L MTH AKSESORIS (IM)"
+        }
+    },
+    {
+        "model": "apptest.kategori",
+        "pk": 3,
+        "fields": {
+            "nama_kategori": "L MTH AKSESORIS (LK)"
+        }
+    },
+    {
+        "model": "apptest.kategori",
+        "pk": 4,
+        "fields": {
+            "nama_kategori": "L MTH TABUNG (LK)"
+        }
+    },
+    {
+        "model": "apptest.kategori",
+        "pk": 5,
+        "fields": {
+            "nama_kategori": "L QUEENLY"
+        }
+    },
+    {
+        "model": "apptest.kategori",
+        "pk": 6,
+        "fields": {
+            "nama_kategori": "S MTH STEMPEL (IM)"
+        }
+    },
+    {
+        "model": "apptest.kategori",
+        "pk": 7,
+        "fields": {
+            "nama_kategori": "SP MTH SPAREPART (LK)"
+        }
+    }
+]

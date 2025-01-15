@@ -1,0 +1,16 @@
+[
+    {
+        "model": "apptest.status",
+        "pk": 1,
+        "fields": {
+            "nama_status": "bisa dijual"
+        }
+    },
+    {
+        "model": "apptest.status",
+        "pk": 2,
+        "fields": {
+            "nama_status": "tidak bisa dijual"
+        }
+    }
+]

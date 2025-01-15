@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+{% block title %}List Produk{% endblock %}
+{% block content %}
+<div class="container mt-5" x-data="produkTable()" x-init="fetchData()">
+    <h1 class="mb-4">Daftar Produk</h1>
+    <div class="mb-2">
+        <button class="btn btn-primary mb-2" @click="openCreateModal()">Tambah Produk</button>
+        <div>
+            <label for="status" class="form-label">Status</label>
+            <select class="form-select" id="filterStatus" x-model="statusId" @change="fetchData">
+                <option value="">Semua Status</option>
+                <template x-for="status in statusList" :key="status.id">
+                    <option :value="status.id" x-text="status.nama_status"></option>
+                </template>
+            </select>
+        </div>
+    </div>
+    
+
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nama Produk</th>
+                <th>Harga</th>
+                <th>Kategori</th>
+                <th>Status</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <template x-for="produk in produkList" :key="produk.id">
+                <tr>
+                    <td x-text="produk.id"></td>
+                    <td x-text="produk.nama_produk"></td>
+                    <td x-text="produk.harga"></td>
+                    <td x-text="produk.kategori"></td>
+                    <td x-text="produk.status"></td>
+                    <td>
+                        <button class="btn btn-primary" @click="openEditModal(produk)">Edit</button>
+                        <button class="btn btn-danger" @click="openDeleteModal(produk)">Delete</button>
+                    </td>
+                </tr>
+            </template>
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            <template x-for="page in totalPages" :key="page">
+                <li class="page-item" :class="{ 'active': currentPage === page }">
+                    <a class="page-link" href="#" x-text="page" @click.prevent="changePage(page)"></a>
+                </li>
+            </template>
+        </ul>
+    </nav>
+    <!-- Modal Edit -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Edit Produk</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <div class="mb-3">
+                            <label for="nama_produk" class="form-label">Nama Produk</label>
+                            <input type="text" class="form-control" id="nama_produk" x-model="editData.nama_produk">
+                        </div>
+                        <div class="mb-3">
+                            <label for="harga" class="form-label">Harga</label>
+                            <input type="number" class="form-control" id="harga" x-model="editData.harga">
+                        </div>
+                        <div class="mb-3">
+                            <label for="kategori" class="form-label">Kategori</label>
+                            <select class="form-select" id="status" x-model="editData.kategori_id">
+                                <option value="">Pilih Status</option>
+                                <template x-for="kategori in kategoriList" :key="kategori.id">
+                                    <option :value="kategori.id" x-text="kategori.nama_kategori"></option>
+                                </template>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" x-model="editData.status_id">
+                                <option value="">Pilih Status</option>
+                                <template x-for="status in statusList" :key="status.id">
+                                    <option :value="status.id" x-text="status.nama_status"></option>
+                                </template>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" @click="saveEdit">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Tambah Produk -->
+    <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addModalLabel">Tambah Produk</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addForm">
+                        <div class="mb-3">
+                            <label for="nama_produk" class="form-label">Nama Produk</label>
+                            <input type="text" class="form-control" id="nama_produk" x-model="addData.nama_produk">
+                        </div>
+                        <div class="mb-3">
+                            <label for="harga" class="form-label">Harga</label>
+                            <input type="number" class="form-control" id="harga" x-model="addData.harga">
+                        </div>
+                        <div class="mb-3">
+                            <label for="kategori" class="form-label">Kategori</label>
+                            <select class="form-select" id="kategori" x-model="addData.kategori_id">
+                                <option value="">Pilih Kategori</option>
+                                <template x-for="kategori in kategoriList" :key="kategori.id">
+                                    <option :value="kategori.id" x-text="kategori.nama_kategori"></option>
+                                </template>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" x-model="addData.status_id">
+                                <option value="">Pilih Status</option>
+                                <template x-for="status in statusList" :key="status.id">
+                                    <option :value="status.id" x-text="status.nama_status"></option>
+                                </template>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" @click="saveAdd">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Delete -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Hapus Produk</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Apakah Anda yakin ingin menghapus produk ini?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-danger" @click="confirmDelete">Ya, Hapus</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function produkTable() {
+        return {
+            produkList: [],  // Menyimpan daftar produk
+            currentPage: 1,  // Halaman saat ini
+            totalPages: 1,   // Total halaman
+            statusId: '',     // Filter status_id (default: 1)
+            editData: {},
+            deleteId: null,
+            statusList: [],
+            kategoriList: [],
+            addData: {     // Data untuk tambah produk
+                nama_produk: '',
+                harga: 0,
+                kategori_id: '',
+                status_id: ''
+            },
+
+            // Fetch data dari API
+            fetchData() {
+                let url = `/api/produk/?page=${this.currentPage}`;
+                if (this.statusId) {
+                    url += `&status_id=${this.statusId}`;  // Tambahkan filter status jika dipilih
+                }
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        this.produkList = data.results;
+                        this.totalPages = Math.ceil(data.count / 10);
+                    });
+                
+                // Fetch data status
+                fetch('/api/status/')
+                    .then(response => response.json())
+                    .then(data => {
+                        this.statusList = data;
+                    });
+                
+                // Fetch data status
+                fetch('/api/kategori/')
+                    .then(response => response.json())
+                    .then(data => {
+                        this.kategoriList = data;
+                    });
+            },
+
+            openEditModal(produk) {
+                this.editData = { ...produk };  // Salin data produk ke editData
+                new bootstrap.Modal(document.getElementById('editModal')).show();
+            },
+
+            saveEdit() {
+                if(this.editData.nama_produk == '' || this.editData.harga == '' || this.editData.kategori_id == '' || this.editData.status_id == '') {
+                    alert('Semua field harus diisi');
+                    return;
+                }
+                this.editData.status_id = parseInt(this.editData.status_id);
+                this.editData.kategori_id = parseInt(this.editData.kategori_id);
+                fetch(`/api/produk/${this.editData.id}/`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(this.editData)
+                })
+                .then(response => response.json())
+                .then(() => {
+                    this.fetchData();  // Refresh data
+                    alert('Produk berhasil diubah');
+                    $('#editModal').modal('hide');
+                });
+            },
+
+            // Ganti halaman
+            changePage(page) {
+                this.currentPage = page;
+                this.fetchData();
+            },
+
+            openDeleteModal(produk) {
+                this.deleteId = produk.id;
+                new bootstrap.Modal(document.getElementById('deleteModal')).show();
+            },
+
+            confirmDelete() {
+                fetch(`/api/produk/${this.deleteId}/`, { method: 'DELETE' })
+                    .then(() => {
+                        this.fetchData();  // Refresh data
+                        alert('Produk berhasil dihapus');
+                        $('#deleteModal').modal('hide');
+                    });
+            },
+
+            openCreateModal() {
+                this.addData = { nama_produk: '', harga: 0, kategori: '', status: '' };  // Reset form
+                new bootstrap.Modal(document.getElementById('addModal')).show();
+            },
+
+            // Simpan produk baru
+            saveAdd() {
+                if(this.addData.nama_produk == '' || this.addData.harga == '' || this.addData.kategori_id == '' || this.addData.status_id == '') {
+                    alert('Semua field harus diisi');
+                    return;
+                }
+                fetch('/api/produk/create/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(this.addData)
+                })
+                .then(response => response.json())
+                .then(() => {
+                    this.fetchData();  // Refresh data
+                    $('#addModal').modal('hide');
+                });
+            },
+        };
+    }
+</script>
+{% endblock %}
