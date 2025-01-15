@@ -2,7 +2,7 @@
 
 Untuk menjalankan project ini bisa melakukan:
 
-1. Pastikan Python dan MySQL sudah terinstall
+1. Pastikan Python, git, dan MySQL sudah terinstall dan sudah terhubung dengan internet.
 2. Install package yang diperlukan dengan menggunakan terminal atau cmd:
 
 ```bash
